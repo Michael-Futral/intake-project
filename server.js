@@ -51,6 +51,6 @@ app.use('/intake', intakeRoutes);
 app.use('/signup', mainRoutes);
 app.use('/confirmation', mainRoutes);
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT || PORT, () => {
   console.log(`Server is running on port ${process.env.PORT} in ${process.env.NODE_ENV} mode.`);
 });
