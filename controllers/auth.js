@@ -4,11 +4,21 @@ const User = require('../models/User');
 
 exports.getLogin = (req, res) => {
   if (req.user) {
-    console.log(req.user)
+    console.log(req.user);
     return res.redirect('/intake');
   }
   res.render('login.ejs', {
     title: 'Login',
+  });
+};
+
+exports.getEmail = (req, res) => {
+  if (req.user) {
+    console.log(`getEmail redirect`);
+    return res.redirect('/confirmation/sendEmail');
+  }
+  res.render('/', {
+    title: 'Email Sent!',
   });
 };
 

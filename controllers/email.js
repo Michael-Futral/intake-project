@@ -1,60 +1,41 @@
-const postmark = require("postmark")
-const User = require('../models/User')
-const PatientInfo = require('../models/PatientInfo')
+const postmark = require('postmark');
+const User = require('../models/User');
+const PatientInfo = require('../models/PatientInfo');
 
 module.exports = {
-    getUser: async (req, res) => {
-        try {
-            console.log(req.user)
-            const userData = req.user
-            const userForm = await PatientInfo.find({ userId: userData._id })
-            console.log(`Sent from in the getUser block`)
-            console.log(userData, userForm)
-            res.redirect('/intake')
-        } catch (err) {
-            console.log(err)
-        }
-    },
-    sendEmail: async (req, res) => {
-        try {
-            // Should have code to receive info from the user and database from the getUser function above.  You can probably either run the function and save the variables, or probably better to just move the userData/userForm from that block into here and get rid of getUser.
+  // getUser: async (req, res) => {
+  //   try {
+  //     console.log(req.user);
+  //     const userData = req.user;
+  //     const userForm = await PatientInfo.find({ userId: userData._id });
+  //     console.log(`Sent from in the getUser block`);
+  //     console.log(userData, userForm);
+  //     res.redirect('/intake');
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // },
+  sendEmail: (req, res) => {
+    try {
+      const userData = req.user
+      // const userForm = await PatientRecord.find({userId: userData._id})
+      let client = new postmark.ServerClient(process.env.POSTMARK_STRING);
 
-            // Something like:
-            // const userData = req.user
-            // const userForm = await PatientRecord.find({userId: userData._id})
+      client.sendEmail({
+        "From": 'Mintake Coordination Team <amethyst@amethystbibby.com>',
+        "To": 'patientintakeapplication@gmail.com',
+        // Switch out "To" field to the following to send to actual users:
+        // "To": userData.email,
+        "Subject": 'Medical Intake Form Completed',
+        "MessageStream": 'outbound',
+        "HtmlBody": "<h3>Valued Patient,</h3><br><p><b>Thank you for submitting your intake form for your upcoming appointment.  Your responses have been recorded and will be sent to your doctor for review prior to your appointment.<br><br>Best Wishes,<br><br>The Mintake Team</b></p>"
+      });
 
-            client.sendEmail({
-                "From": "amethyst@amethystbibby.com",
-                "To": "amethyst@amethystbibby.com",
-                "Subject": "Medical Intake Form Completed",
-                "MessageStream": "outbound",
-                "TemplateAlias": 'formSubmission',
-                "TemplateModel": {
-                    // Replace patient with PatientInfo object fetched from database
-                    "patient": {
-                        "givenName": userForm.givenName,
-                        "familyName": "familyName_Value",
-                        "address": "address_Value",
-                        "city": "city_Value",
-                        "state": "state_Value",
-                        "zipCode": "zipCode_Value",
-                        "phoneNumber": "phoneNumber_Value",
-                        "emailAddress": "emailAddress_Value",
-                        "occupation": "occupation_Value",
-                        "emergencyContact": "emergencyContact_Value",
-                        "emergencyContactPhone": "emergencyContactPhone_Value",
-                        "emergencyContactRelationship": "emergencyContactRelationship_Value",
-                        "physician": "physician_Value",
-                        "physicianPhone": "physicianPhone_Value",
-                        "digitalSignature": "digitalSignature_Value"
-                    },
-                }
-            });
-
-            console.log("Email sent")
-        } catch (err) {
-            console.error(err);
-            process.exit(1);
-        }
+      console.log('Email sent');
+      res.redirect('/')
+    } catch (err) {
+      console.error(err);
+      process.exit(1);
     }
-}
+  },
+};
